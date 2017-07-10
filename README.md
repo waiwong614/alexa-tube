@@ -56,7 +56,7 @@ Again, save it to a notepad file and do not share this with anyone else!!!
 
 1. Click on the green "Clone or download" button just under the yellow bar
 2. Click download ZIP
-3. Unzip the file (it will be called alexa-assistant-master.zip) to a known place on your hard-drive (suggest root of C: drive in Windows to avoid problems with long filenames)
+3. Unzip the file (it will be called alexa-youtube-master.zip) to a known place on your hard-drive (suggest root of C: drive in Windows to avoid problems with long filenames)
 
 ## AWS Lambda Setup (Part 1)
 
