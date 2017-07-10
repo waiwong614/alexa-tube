@@ -106,7 +106,7 @@ alextube.prototype.handle = function () {
 
         });
         
-        }else if (intent.name === "NowPlayingIntent") {
+        }else if (intent.name === "NowIntent") {
  
         console.log('Starting Now playing Intent')
             var nowfunction = this;
