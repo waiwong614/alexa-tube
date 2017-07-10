@@ -87,18 +87,14 @@ Again, save it to a notepad file and do not share this with anyone else!!!
 |DROPBOX_TOKEN|(Put the Dropbox token in here)|
 
 9. Keep the Handler as "index.handler" (this refers to the main js file in the zip).
-10. Under Role - select "Create new role from template(s)"
-11. Under Role Name enter:-
+10. Under Role - select "Create a custom role". This will automatically open a new browser tab or window.
 
-    ```
-    youtube
-    ```
-12. Leave Policy templates blank
-13. In description type
+![alt text](screenshots/new_role.jpeg)
 
-    ```
-    youtube skill
-    ```
+11. Switch to this new tab or window. 
+11. Under IAM Role select "Create a new IAM Role"
+11. Then press the blue "Allow" box at the bottom right hand corner. The tab/window will automatically close.
+11. You should now be back on the Lambda Management page. The Role box will have automatically changed to "Choose an existing role" and Existing Role will be "lambda_basic_executuion".
 12. Under Advanced Settings set Memory (MB) to 1536 and change the Timeout to 12 seconds
 13. Click on the blue "Next" at the bottom of the page and review the settings then click "Create Function". This will upload the Archive.zip file to Lambda. This may take a number of minutes depending on your connection speed. **NOTE - If the creation process takes more than five minutes or produces an error similar to "Signature expired: 20170612T135832Z is now earlier than 20170612T142721Z (20170612T143221Z - 5 min.)" then this is due to having a slow internet upload speed.  You'll need to upload the zip file via S3 instead. Go here:- https://console.aws.amazon.com/s3/home. Create a bucket - call it whatever you want. You can then upload the index.zip to that S3 bucket. Once it's uploaded use the "Upload a file from S3" rather than the "Upload a zip " option in the lambda setup.**
 14. Copy the ARN from the top right to be used later in the Alexa Skill Setup (it's the text after ARN - it won't be in bold and will look a bit like this arn:aws:lambda:eu-west-1:XXXXXXX:function:google-assistant). Hint - Paste it into notepad or similar.
