@@ -16,6 +16,8 @@ This skill is a proof of concept that allows Alexa to search for youtube videos 
 
 Following a search request, the skill produces an Alexa App card which lists upto 25 results and shows the track that is currently playing. This card is not produced when the next track plays unless the "next" command is used
 
+Currently if the skill tries to play a video longer than 2 hours then it will stop with an error - !! I need to fix this!!
+
 
 ## TECHNICAL
 
@@ -184,7 +186,7 @@ Again, save it to a notepad file and do not share this with anyone else!!!
     hotel california
     techmoan
     LGR
-    Paul Hibbert
+    paul hibbert
     ```
 
 15. Copy the text below and paste them into the Sample Utterances box.
