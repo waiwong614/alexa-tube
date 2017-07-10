@@ -18,18 +18,22 @@ Following a search request, the skill produces an Alexa App card which lists upt
 
 Currently if the skill tries to play a video longer than 2 hours then it will stop with an error - !! I need to fix this!!
 
+Whilst Alexa can play the MPEG DASH streams, it does not support seeking within the file, so resuming after a pause will start the track from the beginning.
+
 
 ## TECHNICAL
 
 The mpeg4 aac DASH audio stream URL provided by the API is read using YTDL-core and the resulting audio is temporarily cached into dropbox inorder for Alexa to play the stream. 
 
-Dropbox is used rather than S3 as although it is significantly slower to transfer the data (by an order of maginitude) there are no download charges for dropbox. 
+Dropbox is used rather than S3 as although it is significantly slower to transfer the data (by an order of magnitude) there are no download bandwidth charges for dropbox unlike S3. 
 
 The skill creates a folder in your dropbox called youtube-skill, into which it writes 2 files, audio.mp4 which contains the audio to be played by Alexa and a files settings.json which holds the skills settings between sessions. 
 
 Each time a track plays, the skill overwrites audio.mp4 and creates a unique public URL which is sent to the Echo device. No other files are made public (infact the skill is setup to only be able to access files and folders that it has created).
 
-Whilst Alexa can play the MPEG DASH streams, it does not support seeking within the file, so resuming after a pause will start the track from the beginning.
+**NOTE - you might want to exclude the "youtube-skill" folder from your Selective Sync settings on any desktop machines to stop any annoying notifications popping up each time a song plays! 
+
+
 
 
 
