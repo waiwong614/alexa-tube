@@ -4,20 +4,20 @@ Unofficial Youtube Skill for Alexa
 
 This skill is a proof of concept that allows Alexa to search for youtube videos and play the audio element - NOTE doing so is against the youtube terms of service
 
-# SKILL COMMANDS
+## SKILL COMMANDS
 
-Request a particular video: "Alexa, ask youtube to play 'Charley bit my finger'"
-Request an auto generated playlist of 25 results: - "Alexa ask Youtube to play SOME David Bowie"
-Request a particular track from the playlist: "Alexa, ask Youtube to play Track 10"
-Skip to the next track:- "Alexa, next"
-Pause:- "Alexa pause" or "Alexa stop"
-Resume playback:- "Alexa resume" NOTE - this will restart the track from the beginning
-Find out what is playing by asking "Alexa ask Youtube what's playing"
+1. Request a particular video: "Alexa, ask youtube to play 'Charley bit my finger'"
+2. Request an auto generated playlist of 25 results: - "Alexa ask Youtube to play SOME David Bowie"
+3. Request a particular track from the playlist: "Alexa, ask Youtube to play Track 10"
+4. Skip to the next track:- "Alexa, next"
+5. Pause:- "Alexa pause" or "Alexa stop"
+6. Resume playback:- "Alexa resume" NOTE - this will restart the track from the beginning
+7. Find out what is playing by asking "Alexa ask Youtube what's playing"
 
 Following a search request, the skill produces an Alexa App card which lists upto 25 results and shows the track that is currently playing. This card is not produced when the next track plays unless the "next" command is used
 
 
-# TECHNICAL
+## TECHNICAL
 
 The mpeg4 aac DASH audio stream URL provided by the API is read using YTDL-core and the resulting audio is temporarily cached into dropbox inorder for Alexa to play the stream. 
 
@@ -31,7 +31,7 @@ Whilst Alexa can play the MPEG DASH streams, it does not support seeking within 
 
 
 
-# SETUP INSTRUCTIONS (TEXT)
+## SETUP INSTRUCTIONS (TEXT)
 
 1. Create a youtube api key using the instructions here:-
 https://elfsight.com/blog/2016/12/how-to-get-youtube-api-key-tutorial/
@@ -58,7 +58,6 @@ Again, save it to a notepad file and do not share this with anyone else!!!
 
 2.  Go to the drop down "Location" menu at the top right and ensure you select US-East (N. Virginia) if you are based in the US or EU(Ireland) if you are based in the UK or Germany. This is important as only these two regions support Alexa. NOTE: the choice of either US or EU is important as it will affect the results that you get. The EU node will provide answers in metric and will be much more UK focused, whilst the US node will be imperial and more US focused.
 
-![alt text](screenshots/lambda_region.jpg)
 
 1. Select Lambda from the AWS Services menu at the top left
 2. Click on the "Create a Lambda Function" or "Get Started Now" button.
@@ -105,8 +104,6 @@ Again, save it to a notepad file and do not share this with anyone else!!!
 14. Copy the ARN from the top right to be used later in the Alexa Skill Setup (it's the text after ARN - it won't be in bold and will look a bit like this arn:aws:lambda:eu-west-1:XXXXXXX:function:google-assistant). Hint - Paste it into notepad or similar.
 
 ## Alexa Skill Setup
-
-**NOTE - if you have already installed my previous Google Skill and have used the "google" invocation name for this then you will either have to use a different invocation name for this skill or rename/delete the older Google skill**
 
 1. In a new browser tab/window go to the Alexa Console (https://developer.amazon.com/edw/home.html and select Alexa on the top menu)
 1. If you have not registered as an Amazon Developer then you will need to do so. Fill in your details and ensure you answer "NO" for "Do you plan to monetize apps by charging for apps or selling in-app items" and "Do you plan to monetize apps by displaying ads from the Amazon Mobile Ad Network or Mobile Associates?"
