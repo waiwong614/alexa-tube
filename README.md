@@ -184,12 +184,29 @@ Again, save it to a notepad file and do not share this with anyone else!!!
 14. Copy the text below and paste into the "Enter Values" box and then click "Add"
 
     ```
-    underworld born slippy
-    hotel california
-    techmoan
-    LGR
-    paul hibbert
+    prince
+    the fray
+    the rolling stones
+    toad the wet sproket
+    KC and the sunshine band
+    john travolta and olivia newton john
+    DJ jazzy jeff and the fresh prince
+    lola
+    hello dolly
+    love me tender
+    fools gold
+    roberta flack killing me softly with his song
+    stevie wonder superstition
+    boston
+    full circle
+    dubstar
+    underworld
+    orbital
+    let me be your fantasy
+    pop will eat itself
+    ultra nate
     ```
+Credit to https://github.com/rgraciano/echo-sonos/blob/master/echo/custom_slots/NAMES.slot.txt for some of these
 
 15. Copy the text below and paste them into the Sample Utterances box.
 
@@ -204,6 +221,10 @@ Again, save it to a notepad file and do not share this with anyone else!!!
     NumberIntent play track {number}
     NumberIntent play track number {number}
     NowPlayingIntent what's playing
+    NowPlayingIntent what song is this
+    NowPlayingIntent what is this
+    NowPlayingIntent what song is playing
+    NowPlayingIntent what's this song
     ```
 
 16. Click "Save" and then "Next".
