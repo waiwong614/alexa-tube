@@ -203,6 +203,7 @@ Again, save it to a notepad file and do not share this with anyone else!!!
     NumberIntent play number {number}
     NumberIntent play track {number}
     NumberIntent play track number {number}
+    NowPlayingIntent what's playing
     ```
 
 16. Click "Save" and then "Next".
