@@ -26,7 +26,7 @@ Whilst Alexa can play the MPEG DASH streams, it does not support seeking within 
 
 ## TECHNICAL
 
-The mpeg4 aac DASH audio stream URL provided by the API is read using YTDL-core and the resulting audio is temporarily cached into dropbox inorder for Alexa to play the stream. 
+The mpeg4 aac DASH audio stream URL provided by the API is read using YTDL-core and the resulting audio is temporarily cached into dropbox in order for Alexa to play the stream. 
 
 Dropbox is used rather than S3 as although it is significantly slower to transfer the data (by an order of magnitude) there are no download bandwidth charges for dropbox unlike S3. 
 
