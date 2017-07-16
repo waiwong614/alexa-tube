@@ -113,6 +113,8 @@ These instructions are modified from  tartan_guru's Google Assiatnt skill (https
 9. Keep the Handler as "index.handler" (this refers to the main js file in the zip).
 10. Under Role - select "Create a custom role". This will automatically open a new browser tab or window.
 
+![alt text](screenshots/new_role.jpeg)
+
 11. Switch to this new tab or window. 
 11. Under IAM Role select "Create a new IAM Role"
 11. Then press the blue "Allow" box at the bottom right hand corner. The tab/window will automatically close.
