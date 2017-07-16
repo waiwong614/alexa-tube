@@ -30,11 +30,11 @@ The mpeg4 aac DASH audio stream URL provided by the API is read using YTDL-core 
 
 Dropbox is used rather than S3 as although it is significantly slower to transfer the data (by an order of magnitude) there are no download bandwidth charges for dropbox unlike S3. 
 
-The skill creates a folder in your dropbox called youtube-skill, into which it writes 2 files, audio.mp4 which contains the audio to be played by Alexa and a files settings.json which holds the skills settings between sessions. 
+The skill creates a folder in your dropbox called youtube-skill, into which it writes 2 files, audio.mp4 which contains the audio to be played by Alexa and settings.json which holds the skills settings between sessions. 
 
 Each time a track plays, the skill overwrites audio.mp4 and creates a unique public URL which is sent to the Echo device. No other files are made public (infact the skill is setup to only be able to access files and folders that it has created).
 
-**NOTE - you might want to exclude the "youtube-skill" folder from your Selective Sync settings on any desktop machines to stop any annoying notifications popping up each time a song plays! 
+**NOTE - you might want to exclude the "youtube-skill" folder from your Selective Sync settings on any desktop machines to stop any annoying notifications popping up each time a song plays!**
 
 ## COMMON ISSUES **PLEASE CHECK THESE BEFORE RAISING AN ISSUE**
 
