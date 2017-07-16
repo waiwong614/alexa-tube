@@ -927,7 +927,7 @@ alextube.prototype.createPlaylist = function(currentresult) {
          tracklist = tracklist + '\n'
         }
     
-    var playlist = description + '\n' + 'From Channel: ' + channel + '\n' + '🔗 ' + link + '\nAutoPlay is ' + settings.autoplay + ': Shuffle Mode is ' + settings.shuffle + ': Loop mode is ' + settings.loop + '\n' +
+    var playlist = description + '\n' + 'From Channel: ' + channel + '\n' + '🔗 ' + link + '\n➖ AutoPlay is ' + settings.autoplay + ' ➖ Shuffle Mode is ' + settings.shuffle + ' ➖ Loop mode is ' + settings.loop + ' ➖\n' +
                 '➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n...........................TRACK LISTING...........................\n➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n' + tracklist
 
   return playlist;
