@@ -101,12 +101,13 @@ These instructions are modified from  tartan_guru's Google Assiatnt skill (https
 ![alt text](screenshots/lambda_1.jpeg)
 
 7. Click on the "Upload" button. Go to the folder where you unzipped the files you downloaded from Github, select index.zip and click open. Do not upload the alexa-assistant-master.zip you downloaded from Github - only the index.zip contained within it.
-8. Enter the following into the Environment Variables Section: -
+8. Enter the following into the Environment Variables Section (If you are pasting in the API Key and Toekn then make sure you have no extra spaces: -
 
 |Key           | Value|
 |--------------| -----|
 |API_KEY|(Put the Google API key in here)|
 |DROPBOX_TOKEN|(Put the Dropbox token in here)|
+![alt text](screenshots/environment_variables.jpeg) 
 
 9. Keep the Handler as "index.handler" (this refers to the main js file in the zip).
 10. Under Role - select "Create a custom role". This will automatically open a new browser tab or window.
