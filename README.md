@@ -107,6 +107,7 @@ These instructions are modified from  tartan_guru's Google Assiatnt skill (https
 |--------------| -----|
 |API_KEY|(Put the Google API key in here)|
 |DROPBOX_TOKEN|(Put the Dropbox token in here)|
+
 ![alt text](screenshots/environment_variables.jpeg) 
 
 9. Keep the Handler as "index.handler" (this refers to the main js file in the zip).
