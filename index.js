@@ -79,8 +79,8 @@ alextube.prototype.handle = function () {
             }
         search(alexaUtteranceText, opts, function(err, results) {
           if(err) {
-              return console.log(err)
-              searchFunction.speak('I could not get any results')
+              console.log(err)
+              searchFunction.speakWithCard('I got an error from the Youtube API. Check the API Key has been copied into the Lambda environment variable properly, with no extra spaces before or after the Key', 'YOUTUBE API ERROR', 'I got an error from the Youtube API. \nCheck the API Key has been copied into the API_KEY Lambda environment variable properly, with no extra spaces before or after the Key')
           }
             else {
                 console.log('number of results is', results.length)
@@ -96,8 +96,8 @@ alextube.prototype.handle = function () {
                 searchFunction.saveSettings(function(err, result)  {
                     if (err) {
                         console.log('There was an error saving settings to dropbox', err)
+                        searchFunction.speakWithCard('I got an error from the Dropbox API. Check the API Token has been copied into the Lambda environment variable properly, with no extra spaces before or after the Token', 'YOUTUBE DROPBOX ERROR', 'I got an error from the Dropbox API. \nCheck the Token has been copied into the DROPBOX_TOKEN Lambda environment variable properly, with no extra spaces before or after the Token')
                         
-                        searchFunction.processResult();
                     } else {
                         console.log('Settings saved to dropbox', result)
                         searchFunction.loadSettings(function(err, result)  {
@@ -826,7 +826,6 @@ alextube.prototype.saveSettings = function (callback) {
             }, (err, result) => {
                 if (err){
                     console.log('There was an error')
-                    error = err;
                     callback(err, null);
                 } else if (result){
                       

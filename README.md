@@ -36,6 +36,8 @@ Each time a track plays, the skill overwrites audio.mp4 and creates a unique pub
 
 **NOTE - you might want to exclude the "youtube-skill" folder from your Selective Sync settings on any desktop machines to stop any annoying notifications popping up each time a song plays! 
 
+## TECHNICAL
+
 
 
 
@@ -130,7 +132,7 @@ These instructions are modified from  tartan_guru's Google Assiatnt skill (https
 
 ![alt text](screenshots/review_function.jpeg)
 
-14. Copy the ARN from the top right to be used later in the Alexa Skill Setup (it's the text after ARN - it won't be in bold and will look a bit like this arn:aws:lambda:eu-west-1:XXXXXXX:function:google-assistant). Hint - Paste it into notepad or similar.
+14. Copy the ARN from the top right to be used later in the Alexa Skill Setup (it's the text after ARN - it won't be in bold and will look a bit like this arn:aws:lambda:eu-west-1:XXXXXXX:function:youtube). Hint - Paste it into notepad or similar.
 
 ## Alexa Skill Setup
 
@@ -169,7 +171,7 @@ These instructions are modified from  tartan_guru's Google Assiatnt skill (https
 ![alt text](screenshots/skill_information.jpeg)
 
 10. You will now be on the "Invocation Model" page.
-11. Copy the text below into the "Intent Schema" box.
+11. Copy the text below into the "Intent Schema" box - Ignore the "Built-in intents for playback control box above"
 
     ```
     {
@@ -311,9 +313,9 @@ Credit to https://github.com/rgraciano/echo-sonos/blob/master/echo/custom_slots/
 17. You will now be on the "Configuration" page.
 18. Select "AWS Lambda ARN (Amazon Resource Name)" for the skill Endpoint Type.
 19. Then pick the most appropriate geographical region (either US or EU as appropriate) and paste into the box (highlighted in red in the screenshot) the ARN you copied earlier from the AWS Lambda setup.
-![alt text](screenshots/endpoint.jpeg) 
-20. Select "No" for Account Linking
+20. Select "No" for Account Linking and leave everything under permissions unchecked
 14. Click "Save" and then "Next".
+![alt text](screenshots/endpoint.jpeg) 
 15. There is no need to go any further through the process i.e. submitting for certification. You can test the skill by typing a search into the Service Simulator filed e.g. "play some cat videos" NOTE- the actual audio from youtube won't play in the simulator
 
 
