@@ -1,7 +1,7 @@
 # alexa-tube
 **Unofficial Youtube Skill for Alexa**
 
-##Release 1.0
+## Release 1.0
 
 This skill is a proof of concept that allows Alexa to search for youtube videos and play the audio element - NOTE doing so is against the youtube terms of service
 
