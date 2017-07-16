@@ -62,7 +62,7 @@ http://www.iperiusbackup.net/en/create-dropbox-app-get-authentication-token/
 Again, save it to a notepad file and do not share this with anyone else!!!
 
 
-**The rest of these instructions are modified from tartan_guru's Google Assiatnt skill (https://github.com/tartanguru/alexa-assistant)**
+**The rest of these instructions are modified from tartan_guru's Google Assistant skill (https://github.com/tartanguru/alexa-assistant)**
 
 ## Download code from github
 
