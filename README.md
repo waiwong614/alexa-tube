@@ -36,13 +36,19 @@ Each time a track plays, the skill overwrites audio.mp4 and creates a unique pub
 
 **NOTE - you might want to exclude the "youtube-skill" folder from your Selective Sync settings on any desktop machines to stop any annoying notifications popping up each time a song plays! 
 
-## TECHNICAL
+## COMMON ISSUES **PLEASE CHECK THESE BEFORE RAISING AN ISSUE**
 
-
+1. "Error: There was a problem with your request: Unknown slot type 'SEARCH' for slot 'search' " - You didn't hit the "ADD" button under Custom Slot Types.
+2. I keep getting an error when I go to create function in the Lambda page: Signature expired: 20170612T135832Z is now earlier than 20170612T142721Z (20170612T143221Z - 5 min.) - See the note on step 13 of the AWS Lambda Setup on how to fix this
+3. When I ask Alexa to open Youtube she says: "I got an error from the Dropbox API". You have probably copied over your Dropbox Token incorrectly - make sure you have no extra spaces
+4. When I ask Alexa to open Youtube she says: "I got an error from the Youtube API". You have probably copied over your Youtube API key incorrectly - make sure you have no extra spaces
+5. Sometimes I get no sound or some strange warbling sounds. The track is encoded in a way that isn't playable by Alexa - just skip this track.
 
 
 
 ## SETUP INSTRUCTIONS (TEXT)
+
+## Get a Youtube API Key and Dropbox Token
 
 1. Create a youtube api key using the instructions here:-
 https://elfsight.com/blog/2016/12/how-to-get-youtube-api-key-tutorial/
@@ -55,7 +61,7 @@ http://www.iperiusbackup.net/en/create-dropbox-app-get-authentication-token/
 Again, save it to a notepad file and do not share this with anyone else!!!
 
 
-These instructions are modified from  tartan_guru's Google Assiatnt skill (https://github.com/tartanguru/alexa-assistant)
+**The rest of these instructions are modified from tartan_guru's Google Assiatnt skill (https://github.com/tartanguru/alexa-assistant)**
 
 ## Download code from github
 
@@ -63,7 +69,7 @@ These instructions are modified from  tartan_guru's Google Assiatnt skill (https
 2. Click download ZIP
 3. Unzip the file (it will be called alexa-youtube-master.zip) to a known place on your hard-drive (suggest root of C: drive in Windows to avoid problems with long filenames)
 
-## AWS Lambda Setup (Part 1)
+## AWS Lambda Setup
 
 1. Go to http://aws.amazon.com/. You will need to set-up an AWS account (the basic one will do fine) if you don't have one already. Make sure you use the same Amazon account that your Echo device is registered to. **Note - you will need a credit or debit card to set up an AWS account - there is no way around this. Please see the AWS Charges section above**
 

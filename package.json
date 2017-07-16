@@ -1,0 +1,31 @@
+{
+  "name": "alexa-tube",
+  "version": "1.0.0",
+  "description": "Unofficial Youtube Skill for Alexa",
+  "main": "index.js",
+  "dependencies": {
+    "dropbox-v2-api": "^2.1.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "googleapis": "^20.0.1",
+    "stream": "^0.0.2",
+    "stream-transcoder": "^0.0.5",
+    "wait-one-moment": "^0.0.2",
+    "youtube-search": "^1.0.10",
+    "ytdl-core": "^0.14.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fenton-Fenton-Fenton/alexa-tube.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Fenton-Fenton-Fenton/alexa-tube/issues"
+  },
+  "homepage": "https://github.com/Fenton-Fenton-Fenton/alexa-tube#readme"
+}
