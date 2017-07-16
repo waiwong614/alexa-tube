@@ -122,11 +122,11 @@ These instructions are modified from  tartan_guru's Google Assiatnt skill (https
 
 ![alt text](screenshots/existing_role.jpeg)
 
-12. Under Advanced Settings set Memory (MB) to 1536 and change the Timeout to 12 seconds
+12. Under Advanced Settings set Memory (MB) to 1536 and change the Timeout to 1 minute 0 seconds
 
 ![alt text](screenshots/advanced_settings.jpeg)
 
-13. Click on the blue "Next" at the bottom of the page and review the settings then click "Create Function". This will upload the Archive.zip file to Lambda. This may take a number of minutes depending on your connection speed. **NOTE - If the creation process takes more than five minutes or produces an error similar to "Signature expired: 20170612T135832Z is now earlier than 20170612T142721Z (20170612T143221Z - 5 min.)" then this is due to having a slow internet upload speed.  You'll need to upload the zip file via S3 instead. Go here:- https://console.aws.amazon.com/s3/home. Create a bucket - call it whatever you want. You can then upload the index.zip to that S3 bucket. Once it's uploaded use the "Upload a file from S3" rather than the "Upload a zip " option in the lambda setup.**
+13. Click on the blue "Next" at the bottom of the page and review the settings then click "Create Function". This will upload the index.zip file to Lambda. This may take a number of minutes depending on your connection speed. **NOTE - If the creation process takes more than five minutes or produces an error similar to "Signature expired: 20170612T135832Z is now earlier than 20170612T142721Z (20170612T143221Z - 5 min.)" then this is due to having a slow internet upload speed.  You'll need to upload the zip file via S3 instead. Go here:- https://console.aws.amazon.com/s3/home. Create a bucket - call it whatever you want. You can then upload the index.zip to that S3 bucket. Once it's uploaded use the "Upload a file from S3" rather than the "Upload a zip " option in the lambda setup.Delete the zip file from S3 once you have finished with it to avoid S3 charges**
 
 ![alt text](screenshots/review_function.jpeg)
 
