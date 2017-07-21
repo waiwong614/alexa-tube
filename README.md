@@ -12,11 +12,12 @@ This skill is a proof of concept that allows Alexa to search for youtube videos 
 3. Request a particular track from the playlist: "Alexa, ask Youtube to play Track 10"
 4. Skip to the next/previous track:- "Alexa, next/ previous track"
 5. Pause:- "Alexa pause" or "Alexa stop"
-6. Resume playback:- "Alexa resume" NOTE - this will restart the track from the beginning
+6. Resume playback:- "Alexa resume" 
 7. Find out what is playing by asking "Alexa ask Youtube what's playing"
 8. Loop the current playlist:- "Alexa Loop On/Off"
 9. Shuffle mode On/Off:- "Alexa shuffle On/Off"
 10. Start the track currently playing fromt he beginning:- "Alexa Start Over"
+11. Get a list of these commands in the Alexa app: - "Alexa ask Youtube for help"
 
 Following a search request, the skill produces an Alexa App card which lists upto 25 results and shows the track that is currently playing. This card is not produced when the next track plays unless the "next" command is used or you ask what is playing
 

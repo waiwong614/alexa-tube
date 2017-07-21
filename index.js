@@ -23,12 +23,17 @@ const dbfile = 'audio.mp4'
 
 process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'];
 
-var maxresults = 20
+var maxresults = 25
 var partsize = 60*30 // size of the audio chunks in seconds
 
 if (process.env['PART_SIZE_SECS']){
     partsize = process.env['PART_SIZE_SECS']
     console.log('Partsize over-ridden to ', partsize)
+}
+
+if (process.env['MAX_RESULTS']){
+    maxresults = process.env['MAX_RESULTS']
+    console.log('Max results over-ridden to ', partsize)
 }
 
 var opts = {
