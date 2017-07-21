@@ -1,7 +1,7 @@
 # alexa-tube
 **Unofficial Youtube Skill for Alexa**
 
-## Release 1.0
+## Release 1.1
 
 This skill is a proof of concept that allows Alexa to search for youtube videos and play the audio element - NOTE doing so is against the youtube terms of service
 
@@ -20,14 +20,15 @@ This skill is a proof of concept that allows Alexa to search for youtube videos 
 
 Following a search request, the skill produces an Alexa App card which lists upto 25 results and shows the track that is currently playing. This card is not produced when the next track plays unless the "next" command is used or you ask what is playing
 
+The skill will filter out any tracks longer than 7 hours as there isn't sufficient space in lambda to process them.
+
 ![alt text](screenshots/skill_card.jpeg)
 
-Whilst Alexa can play the MPEG DASH streams, it does not support seeking within the file, so resuming after a pause will start the track from the beginning.
 
 
 ## TECHNICAL
 
-The mpeg4 aac DASH audio stream URL provided by the API is read using YTDL-core and the resulting audio is temporarily cached into dropbox in order for Alexa to play the stream. 
+The mpeg4 aac DASH audio stream URL provided by the API is read using YTDL-core, rewrapped into a seekable MP4 file using FFMPEG and the resulting audio is temporarily cached into dropbox in order for Alexa to play the stream. 
 
 Dropbox is used rather than S3 as although it is significantly slower to transfer the data (by an order of magnitude) there are no download bandwidth charges for dropbox unlike S3. 
 
@@ -285,6 +286,7 @@ Again, save it to a notepad file and do not share this with anyone else!!!
     let me be your fantasy
     pop will eat itself
     ultra nate
+    4 hours Peaceful and Relaxing Instrumental Music
     ```
 ![alt text](screenshots/slot_types.jpeg)
 Credit to https://github.com/rgraciano/echo-sonos/blob/master/echo/custom_slots/NAMES.slot.txt for some of these

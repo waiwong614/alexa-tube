@@ -9,17 +9,27 @@ var url = 'http://youtube.com/watch?v='
 var fs = require('fs');
 var API_KEY = process.env['API_KEY'];
 var dropbox_token = process.env['DROPBOX_TOKEN'];
+var ffmpeg = require('fluent-ffmpeg');
+
 
 const dropbox = dropboxV2Api.authenticate({
     token: dropbox_token
 });
 
+const audioOutput = '/tmp/sound.m4a'
+const mainOutput = '/tmp/output.m4a'
+const dbfile = 'audio.mp4'
 
-console.log('***********Starting new session**************')
 
 process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'];
 
 var maxresults = 20
+var partsize = 60*30 // size of the audio chunks in seconds
+
+if (process.env['PART_SIZE_SECS']){
+    partsize = process.env['PART_SIZE_SECS']
+    console.log('Partsize over-ridden to ', partsize)
+}
 
 var opts = {
   maxResults: maxresults,
@@ -49,7 +59,8 @@ alextube.prototype.handle = function () {
  
  
    if (requestType === "LaunchRequest") {
-        this.speak('Welcome to youtube. What are you searching for?', true)
+       
+     this.speak('Welcome to youtube. What are you searching for?', true)
  
  
     } else if (requestType === "IntentRequest") {
@@ -86,12 +97,27 @@ alextube.prototype.handle = function () {
                 console.log('number of results is', results.length)
                 settings.results = results
                 settings.currentresult = 0
+                settings.previousURL = null;
+                settings.previousresult = 0;
+                var tracksettings= [];
                 var playlist=[];
-                    for (var count = 0; count <= results.length-1; count++) {
-                        
-                        playlist[count] = 'Track ' + (count +1) +': ' + results[count].title
+                for (var count = 0; count <= results.length-1; count++) {
 
+                    playlist[count] = 'Track ' + (count +1) +': ' + results[count].title
+                    
+                    var object = {
+                      "id": count,
+                        "title": results[count].title,
+                      "duration": null,
+                        "parts": null,
+                        "currentpart": 0
+                        
                     }
+                    tracksettings.push(object)
+
+
+                }
+                settings.tracksettings = tracksettings;
                 settings.playlist = playlist
                 searchFunction.saveSettings(function(err, result)  {
                     if (err) {
@@ -99,7 +125,7 @@ alextube.prototype.handle = function () {
                         searchFunction.speakWithCard('I got an error from the Dropbox API. Check the API Token has been copied into the Lambda environment variable properly, with no extra spaces before or after the Token', 'YOUTUBE DROPBOX ERROR', 'I got an error from the Dropbox API. \nCheck the Token has been copied into the DROPBOX_TOKEN Lambda environment variable properly, with no extra spaces before or after the Token')
                         
                     } else {
-                        console.log('Settings saved to dropbox', result)
+                        
                         searchFunction.loadSettings(function(err, result)  {
                             if (err) {
                                 searchFunction.speak('There was an error loading settings from dropbox')
@@ -120,7 +146,7 @@ alextube.prototype.handle = function () {
                                 }
                                 
                                 
-                                searchFunction.processResult();
+                                searchFunction.processResult(0, null, 0);
 
           
                             }
@@ -221,8 +247,11 @@ alextube.prototype.handle = function () {
                 var token = resumefunction.createToken;
                 var results = resumefunction.results;
                 var currentresult = settings.currentresult
-                var url = settings.currentURL;
-                console.log('current URL is ' + url)
+                var previousresult = settings.previousresult
+
+                
+                var currenturl = settings.currentURL;
+                                
                 if (lastPlayed !== null) {
                     console.log(lastPlayed);
                     offsetInMilliseconds = lastPlayed.request.offsetInMilliseconds;
@@ -231,7 +260,47 @@ alextube.prototype.handle = function () {
                 if (offsetInMilliseconds < 0){
                     offsetInMilliseconds = 0
                 }
-                resumefunction.resume(url, offsetInMilliseconds, token);
+                
+                if (settings.enqueue == true){
+                    console.log('RESUME INTENT Track already enqueued')
+                    settings.enqueue = false
+                    var tracksettings = settings.tracksettings[currentresult]
+                    var currentpart = tracksettings.currentpart
+                    var totalparts = tracksettings.parts
+                    console.log('RESUME INTENT CurrentResult is', currentresult)
+                    console.log('RESUME INTENT Currentpart is', currentpart)
+                    console.log('RESUME INTENT Offset is', offsetInMilliseconds)
+                    
+                    if (currentresult !== previousresult){
+                        // 
+                        console.log('RESUME INTENT Next track already cued')
+                        settings.currentresult = previousresult
+                        currentpart = settings.tracksettings[previousresult].currentpart
+                        
+                        resumefunction.processResult(currentpart, null, offsetInMilliseconds)
+  
+                        
+                    } else {
+                        
+                        // assume we are on the same track so play the previous part
+                        console.log('RESUME INTENT Next part already cued')
+                        tracksettings.currentpart--;
+                        
+                        if (tracksettings.currentpart < 0){
+                            tracksettings.currentpart = 0
+                        }
+                        console.log('RESUME INTENT Queueing part ', tracksettings.currentpart)
+                        settings.tracksettings[currentresult].currentpart = tracksettings.currentpart;
+                        resumefunction.processResult(tracksettings.currentpart, null,offsetInMilliseconds)
+                    }
+                    
+                } else {
+                    console.log('current URL is ' + currenturl)
+                
+                resumefunction.resume(currenturl, offsetInMilliseconds, token);
+                    
+                }
+                
 
                 }
             });
@@ -251,7 +320,7 @@ alextube.prototype.handle = function () {
                     if (err) {
                         console.log('There was an error saving settings to dropbox', err)
                     } else {
-                        console.log('Settings saved to dropbox', result)
+                        
                     }
                 });
             }
@@ -276,6 +345,7 @@ alextube.prototype.handle = function () {
         
         
         var playbackstartedfunction = this;
+        console.log(playbackstartedfunction.event)
         
         this.loadSettings(function(err, result)  {
             if (err) {
@@ -283,59 +353,93 @@ alextube.prototype.handle = function () {
             } else { 
                 settings.lastplayed = playbackstartedfunction.event
                 settings.enqueue = false;
+                settings.currentlyplaying = playbackstartedfunction.event
                 var results = settings.results
                 var currentresult = settings.currentresult
                 settings.currenttitle = results[currentresult].title
+                
                 playbackstartedfunction.saveSettings(function(err, result)  {
                     if (err) {
                         console.log('There was an error saving settings to dropbox', err)
                     } else {
-                        console.log('Settings saved to dropbox', result)
+                        
                     }
                 });
             }
 
-        });        
+        });
+        
     }
     else if (requestType === "AudioPlayer.PlaybackNearlyFinished") {
         console.log('Playback nearly finished')
         var finishedfunction = this;
         var token = this.event.request.token;
         console.log('Token from request is', token)
-            this.loadSettings(function(err, result)  {
-            if (err) {
-                finishedfunction.speak('There was an error loading settings to dropbox')
-            } else {
-                var results = settings.results 
-                var current = settings.currentresult
-                settings.currenttoken = token
-                console.log('number of results is', results.length)
-                
-                if (settings.shuffle == 'on'){
-                    settings.currentresult = Math.floor((Math.random() * (results.length-1) ));
-                    finishedfunction.processResult();
-                }
-
-                else if (current >= results.length-1){
-                    if (settings.loop == 'on'){
-                        settings.currentresult = 0
-                        finishedfunction.processResult('enqueue');
-                    } else {
-                    console.log('end of results reached')
-                    }
-                } else if(settings.autoplay == 'off'){
-                    console.log('Autoplay is off')
-                }
-                else {
-                    current++;
-                    settings.currentresult = current;
-                    finishedfunction.processResult('enqueue');
-
-                }
-            }
-        });
+        // PlaybackNearlyFinished Directive are prone to be delivered multiple times during the same audio being played.
+        //If an audio file is already enqueued, exit without enqueuing again.
         
-    }
+                this.loadSettings(function(err, result)  {
+                if (err) {
+                    finishedfunction.speak('There was an error loading settings to dropbox')
+                } else {
+                    
+                    if (settings.enqueue == true){
+                        console.log("NEARLY FINISHED Track already enqueued")
+                    } else {
+                        console.log("NEARLY FINISHED Nothing already enqueued")
+                        var results = settings.results 
+                        var current = settings.currentresult
+
+                        settings.currenttoken = token
+                        var tracksettings = settings.tracksettings[current]
+                        var currentpart = tracksettings.currentpart
+                        var totalparts = tracksettings.parts
+                        console.log('NEARLY FINISHED Currentpart is', currentpart)
+                        console.log('NEARLY FINISHED Total parts ', totalparts)
+
+                        if (currentpart <= (totalparts -2)){
+                            currentpart++
+                            settings.tracksettings[current].currentpart = currentpart
+                            console.log('NEARLY FINISHED Queueing part ', currentpart)
+                            settings.enqueue = true
+                            finishedfunction.processResult(currentpart, 'enqueue', 0);
+
+                        } else {
+                            console.log('NEARLY FINISHED No parts left - queueing next track')
+
+                            settings.previousresult = current
+                            if (settings.shuffle == 'on'){
+                                settings.currentresult = Math.floor((Math.random() * (results.length-1) ));
+                                settings.tracksettings[settings.currentresult].currentpart = 0
+                                settings.enqueue = true
+                                finishedfunction.processResult(0, 'enqueue', 0);
+                            }
+
+                            else if (current >= results.length-1){
+                                if (settings.loop == 'on'){
+                                    settings.currentresult = 0
+                                   settings.tracksettings[settings.currentresult].currentpart = 0
+                                    settings.enqueue = true
+                                    finishedfunction.processResult(0, 'enqueue', 0);
+                                } else {
+                                console.log('end of results reached')
+                                }
+                            } else if(settings.autoplay == 'off'){
+                                console.log('Autoplay is off')
+                            }
+                            else {
+                                current++;
+                                settings.currentresult = current;
+                                settings.enqueue = true
+                                finishedfunction.processResult(0, 'enqueue', 0);
+
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    
 };
  
  alextube.prototype.play = function (audioURL, offsetInMilliseconds,  tokenValue) {
@@ -469,29 +573,33 @@ alextube.prototype.next = function () {
             var url = settings.currentURL
             var results = settings.results 
             var current = settings.currentresult
+            var previous = settings.previousresult
+            
+            if (enqueuestatus == true && current !== previous){
+                console.log('Song already enqueued')
+                
+                nextfunction.play(url, 0, currenttoken)
+            }
             
 
-            if (enqueuestatus == true){
-                console.log('Song already enqueued')
-                nextfunction.play(url, 0, currenttoken)
-            } else if (settings.shuffle == 'on'){
+            else if (settings.shuffle == 'on'){
                 
                 settings.currentresult = Math.floor((Math.random() * (results.length-1) ));
-                nextfunction.processResult();
+                nextfunction.processResult(0, null, 0);
                 
             } else{
                 console.log('Enqueuing song')
                 if (current >= results.length-1){
                     if (settings.loop == 'on'){
                         settings.currentresult = 0
-                        nextfunction.processResult();
+                        nextfunction.processResult(0, null, 0);
                     } else {
                     nextfunction.speak('End of playlist reached')
                     }
                 } else {
                     current++;
                     settings.currentresult = current;
-                    nextfunction.processResult();
+                    nextfunction.processResult(0, null, 0);
                 }
             }
         }
@@ -511,7 +619,7 @@ alextube.prototype.nextResult = function () {
     } else {
         current++;
         settings.currentresult = current;
-        nextfunction.processResult();
+        nextfunction.processResult(0, null, 0);
     }
 
 
@@ -538,7 +646,7 @@ alextube.prototype.previous = function () {
                     previousfunction.speak('Already at beginning of playlist')
                 } else {
                     settings.currentresult = current;
-                    previousfunction.processResult();
+                    previousfunction.processResult(0, null, 0);
                 }                     
             } else {
                 console.log('Enqueuing song')
@@ -547,7 +655,7 @@ alextube.prototype.previous = function () {
                     previousfunction.speak('Already at beginning of playlist')
                 } else {
                     settings.currentresult = current;
-                    previousfunction.processResult();
+                    previousfunction.processResult(0, null, 0);
                 }
             }
         }
@@ -555,101 +663,92 @@ alextube.prototype.previous = function () {
 
 };
 
-alextube.prototype.processResult = function (enqueue) {
+alextube.prototype.processResult = function (partnumber, enqueue, offset) {
     console.log("Processing result")
+    if(enqueue){
+        settings.enqueue = true
+    }
+    if(!offset){
+        offset=0
+    }
     var results = settings.results
     var currentresult = settings.currentresult
     var url = results[currentresult].id;
     var foundTitle = results[currentresult].title;
     var playFunction = this;
     var audioStreamInfo = ytdl.getInfo(url, { filter: function(format) { return format.container === 'm4a'; } }, function (err,info){
-        
+        console.log(info)
         var contentduration = info.length_seconds
+        settings.tracksettings[currentresult].duration = contentduration
         console.log ('Duration is ', contentduration)
         
-        if (contentduration > 125*60){
+        // ignore contetn lobger than 7 hours as the Lambda function will run out of space!!!
+        if (contentduration > 60*60*7){
             
-            console.log('Audio longer than 2 hours - for track', currentresult)
+            console.log('Audio longer than 7 hours - for track', currentresult)
             settings.playlist[currentresult] = settings.playlist[currentresult] + 'TRACK TOO LONG TO PLAY!'
             playFunction.nextResult();
 
             
-        } else if (contentduration > 0){
-            const dropboxUploadStream = dropbox({
-                resource: 'files/upload',
-                parameters: {
-                    path: '/youtube-skill/audio.m4a',
-                    mode: 'overwrite',
-                    mute: true
-                }
-            }, (err, result) => {
-                if (err){
-                    console.log('There was an error')
-                    console.log(err)
-                } else if (result){
-                    console.log(result)
-                    dropbox({
-                        resource: 'files/get_temporary_link',
-                        parameters: {
-                            'path': '/youtube-skill/audio.m4a'
-                        }
-                    }, (err, result) => {
-                        if (err){
-                            console.log('There was an error')
-                    console.log(err)
-                        } else if (result){
-                            console.log('Here is the temp link')
-                            console.log(result.link)
-                            var streamURL = result.link
-                            settings.currentURL = streamURL;
-                            if (!enqueue){
-                                console.log('normal play')
-                                var token = playFunction.createToken();
-                                settings.currenttoken = token
-                                settings.enqueue = false
-                            
-                            playFunction.saveSettings(function(err, result)  {
-                                    if (err) {
-                                        console.log('There was an error saving settings to dropbox', err)
+        } else if (contentduration = 0){
+            
+            console.log('Audio not found', currentresult)
+            settings.playlist[currentresult] = settings.playlist[currentresult] + 'TRACK NOT PLAYABLE!'
+            playFunction.nextResult();
 
-                                        playFunction.speak('There was an error saving settings to dropbox')
-                                    } else {
-                                        console.log('Settings saved to dropbox', result)
-                                         
-                                        playFunction.play(streamURL, 0, token);
-                                    }
-                                });      
-                                
-                            } else {
-                                console.log('enque play')
-                                var previoustoken = settings.currenttoken
-                                console.log('Previous token is: ', previoustoken)
-                                var token = playFunction.createToken();
-                                settings.currenttoken = token
-                                settings.enqueue = true
-                                console.log('current token is: ', settings.currenttoken)
-                                
-                            
-                            playFunction.saveSettings(function(err, result)  {
-                                    if (err) {
-                                        console.log('There was an error saving settings to dropbox', err)
+            
+        } else {
+         var parts = Math.ceil(contentduration / partsize)
+        settings.tracksettings[currentresult].parts = parts
+        console.log ('Number of parts is ', parts)
+        if (!partnumber ){
+            partnumber = 0
+        } 
+        
+        else if (partnumber > (parts-1) || partnumber < 0){
+            console.log('Part number invalid')
+            partnumber = 0
+        }
+        
+        console.log('Part to be processed is ', partnumber)
+        settings.tracksettings[currentresult].currentpart = partnumber
+        
+        
+        var starttime = partsize * partnumber
+        
+        
+        console.log ('start secs ', starttime)
+        
+            ytdl(url, { filter: format => {
+              return format.container === 'm4a';  } })
+              // Write audio to file since ffmpeg supports only one input stream.
+              .pipe(fs.createWriteStream(audioOutput))
 
-                                        playFunction.speak('There was an error saving settings to dropbox')
-                                    } else {
-                                        console.log('Settings saved to dropbox', result)
-                                         
-                                        playFunction.enqueue(streamURL, 0, token, previoustoken);
-                                    }
-                                });
+              .on('finish', () => {
+                var test = ffmpeg()
+              //  .input(ytdl(url, { filter: format => {
+              //    return format.container === 'm4a';  } }))
+                  //.videoCodec('copy')
+                  .input(audioOutput)
+                .inputFormat('m4a')
+                    .seekInput(starttime)
+                .duration(partsize)
+                  .audioCodec('copy')
+                .outputOptions('-movflags faststart')
+                  .save(mainOutput)
+                  .on('error', console.error)
+                    .on('end', () => {
+                    fs.unlink(audioOutput, err => {
+                      if(err) console.error(err);
 
-                            }
-
-                        }
-                        
+                        playFunction.upload(enqueue, offset);
                     });
-                }
-            }); 
-            var media = ytdl(url, { filter: function(format) { return format.container === 'm4a'; } }).pipe(dropboxUploadStream);
+                  });
+               //     test.pipe(dropboxUploadStream);
+             
+              });
+            
+            
         }
  
     })
@@ -716,7 +815,6 @@ alextube.prototype.autoMode = function (mode) {
                     if (err) {
                         console.log('There was an error saving settings to dropbox', err)
                     } else {
-                        console.log('Settings saved to dropbox', result)
                         autofunction.speak('Autoplay mode is ' + mode)
                     }
                 });
@@ -727,7 +825,6 @@ alextube.prototype.autoMode = function (mode) {
 };
 
 alextube.prototype.shuffle = function (mode) {
-    console.log('changing shuffle mode')
     
     var shufflefunction = this;
             
@@ -742,7 +839,7 @@ alextube.prototype.shuffle = function (mode) {
                     if (err) {
                         console.log('There was an error saving settings to dropbox', err)
                     } else {
-                        console.log('Settings saved to dropbox', result)
+                        
                         shufflefunction.speak('Shuffle mode is ' + mode)
                     }
                 });
@@ -768,7 +865,7 @@ alextube.prototype.loop = function (mode) {
                     if (err) {
                         console.log('There was an error saving settings to dropbox', err)
                     } else {
-                        console.log('Settings saved to dropbox', result)
+                        
                         loopfunction.speak('Loop mode is ' + mode)
                     }
                 });
@@ -798,7 +895,8 @@ alextube.prototype.numberedTrack = function (number) {
                     
                     
                     settings.currentresult = number-1;
-                    numfunction.processResult();
+                    settings.tracksettings[settings.currentresult].currentpart = 0
+                    numfunction.processResult(0, null, 0);
                 }            
             }
         });
@@ -856,7 +954,7 @@ alextube.prototype.loadSettings = function (callback) {
                 
                     
                 } else if (result){
-                    console.log('File was downloaded from dropbox')
+                    
                     //savefile.end();
                     
                 }
@@ -875,8 +973,6 @@ alextube.prototype.loadSettings = function (callback) {
           } else {
               
               settings = JSON.parse(data);
-              console.log(settings)
-              console.log('Settings file sucessfully read')
               callback(null, {});
               
           }
@@ -950,5 +1046,96 @@ alextube.prototype.help = function(currentresult) {
     var cardTitle = 'Youtube Skill Commands'
     
     this.speakWithCard ('Please see the Alexa app for a list of commands that can be used with this skill', cardTitle, cardtext)
+
+}
+
+alextube.prototype.upload = function(enqueue, offset) {
+    
+    var uploadfuntion = this;
+    
+        const dropboxUploadStream = dropbox({
+                resource: 'files/upload',
+                parameters: {
+                    path: '/youtube-skill/audio.m4a',
+                    mode: 'overwrite',
+                    mute: true
+                }
+            }, (err, result) => {
+                if (err){
+                    console.log('There was an error')
+                    console.log(err)
+                } else if (result){
+                    console.log(result)
+                    dropbox({
+                        resource: 'files/get_temporary_link',
+                        parameters: {
+                            'path': '/youtube-skill/audio.m4a'
+                        }
+                    }, (err, result) => {
+                        if (err){
+                            console.log('There was an error')
+                    console.log(err)
+                        } else if (result){
+                            console.log('Here is the temp link')
+                            console.log(result.link)
+                            var streamURL = result.link
+                            
+                            fs.unlink(mainOutput, err => {
+                              if(err) console.error(err);
+                              
+                            });
+                            if (!enqueue){
+                                console.log('normal play')
+                                var token = uploadfuntion.createToken();
+                                settings.currenttoken = token
+                                settings.enqueue = false
+                                settings.currentURL = streamURL;
+                                
+                            
+                            uploadfuntion.saveSettings(function(err, result)  {
+                                    if (err) {
+                                        console.log('There was an error saving settings to dropbox', err)
+
+                                        uploadfuntion.speak('There was an error saving settings to dropbox')
+                                    } else {
+                                        
+                                         
+                                        uploadfuntion.play(streamURL, offset, token);
+                                    }
+                                });      
+                                
+                            } else {
+                                console.log('enque play')
+                                var previoustoken = settings.currenttoken
+                                
+                                var token = uploadfuntion.createToken();
+                                settings.currenttoken = token
+                                settings.enqueue = true
+                                
+                                settings.previousURL = settings.currentURL
+                                settings.currentURL = streamURL;
+                                
+                                
+                            
+                            uploadfuntion.saveSettings(function(err, result)  {
+                                    if (err) {
+                                        console.log('There was an error saving settings to dropbox', err)
+
+                                        uploadfuntion.speak('There was an error saving settings to dropbox')
+                                    } else {
+                                        
+                                         
+                                        uploadfuntion.enqueue(streamURL, 0, token, previoustoken);
+                                    }
+                                });
+
+                            }
+
+                        }
+                        
+                    });
+                }
+            });
+    var readmp4 = fs.createReadStream(mainOutput).pipe(dropboxUploadStream);
 
 }
