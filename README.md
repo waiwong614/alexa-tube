@@ -5,9 +5,11 @@
 
 This skill is a proof of concept for personal use that allows Alexa to search for youtube videos and play the audio element - NOTE doing so is against the youtube terms of service
 
-This skill will stream approximately 15-18 hours per month of youtube audio within the free tier of AWS.
+This skill will stream approximately 18 hours per month of youtube audio within the free tier of AWS.
+Each additonal 18 hours per month will cost approx $0.09
 
-The skill will *try* and stop you from going beyond these limits - but it is your responsibility to keep a check on your usage and AWS costs. See the AWS Charges section for more details.
+The skill will **try** and stop you from going beyond the free limits unless you instruct it to do otherwise - but it is your responsibility to keep a check on your usage and AWS costs. 
+See the AWS Charges section for more details.
 
 
 ## SKILL COMMANDS
@@ -34,8 +36,8 @@ The skill will filter out any tracks longer than 7 hours as there isn't sufficie
 
 ## AWS CHARGES
 
-This skill has to transfer *a lot* of data around which Amazon charges for. The first 1 Gigabyte of data transfer per month is free after which Amazon will charge $0.09 per GB.
-The skill will  *try* to prevent you from going over 1000MB in a calender month (this is not a full 1GB but leaves some additonal headroom for for other skills) and will stop playing any further audio unless you specifcally ask the skill to increase the data limit by saying:-
+This skill has to transfer **a lot** of data around which Amazon charges for. The first 1 Gigabyte of data transfer per month is free after which Amazon will charge $0.09 per GB.
+The skill will  **try** to prevent you from going over 1000MB in a calender month (this is not a full 1GB but leaves some additonal headroom for for other skills) and will stop playing any further audio unless you specifcally ask the skill to increase the data limit by saying:-
 
 "Alexa, ask youtube to increase the data limit"
 
