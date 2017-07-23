@@ -177,7 +177,7 @@ Again, save it to a notepad file and do not share this with anyone else!!!
 
 ![alt text](screenshots/existing_role.jpeg)
 
-12. Under Advanced Settings set Memory (MB) to 1536 and change the Timeout to 1 minute 0 seconds
+12. Under Advanced Settings set Memory (MB) to 512 and change the Timeout to 1 minute 0 seconds
 
 ![alt text](screenshots/advanced_settings.jpeg)
 

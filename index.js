@@ -20,7 +20,7 @@ const audioOutput = '/tmp/sound.m4a'
 const mainOutput = '/tmp/output.m4a'
 const dbfile = 'audio.mp4'
 var maxdata = 1048576000 // default max data limit - this is deliberately set to 1000MB rather than 1 Gig to allow headroom for settings.js transfers plus any other skills running
-var datachargerate = 0.090 // this is the AWS Data transfer charge per Gigabyte first 10 TB / month data transfer out beyond the global free tier
+var datachargerate = 0.090 // this is the AWS Data transfer charge per Gigabyte first 10 TB / month data transfer out beyond the global free tier 
 
 var destructrequestactive = false
 
