@@ -1023,7 +1023,7 @@ alextube.prototype.raisemax = function () {
                         console.log('There was an error saving settings to dropbox', err)
                     } else {
                         
-                        raisefunction.speak('Monthly Data limit has been increased to ' + Math.ceil(settings.maxdata/1048576) + 'Megabytes. Current usage this month is ' + Math.ceil(settings.dataused/1048576) + 'Mega bytes. Warning. Additional use of this skill may be subject to amazon AWS Bandwidth charges, which are ' + datachargerate + ' per gigabyte. See the Now Playing card in the Alexa app for current estimated costs')
+                        raisefunction.speak('Monthly Data limit has been increased to ' + Math.ceil(settings.maxdata/1048576) + 'Megabytes. Current usage this month is ' + Math.ceil(settings.dataused/1048576) + 'Mega bytes. Warning. Additional use of this skill may be subject to amazon AWS Bandwidth charges, which are ' + datachargerate + ' US dollars per gigabyte. See the Now Playing card in the Alexa app for current estimated costs')
                     }
                 });
             }
@@ -1188,7 +1188,7 @@ alextube.prototype.createPlaylist = function(currentresult) {
     } 
     
     var playlist = description + '\n' + 'From Channel: ' + channel + '\n' + '🔗 ' + link + 
-        '\n➖➖ ESTIMATED COSTS TO DATE FOR THIS MONTH $' + costs + 
+        '\n➖➖ ESTIMATED COSTS TO DATE FOR THIS MONTH IN US $' + costs + 
         ' ➖➖➖  \n➖  DATA USAGE LIMIT: ' + Math.ceil(settings.maxdata/1048576) + 
         'MB ➖ DATA USED: ' + Math.ceil(settings.dataused/1048576) + 
         ' MB ➖ DATA REMAINING: ' + 
