@@ -5,8 +5,8 @@
 
 This skill is a proof of concept for personal use that allows Alexa to search for youtube videos and play the audio element - NOTE doing so is against the youtube terms of service
 
-This skill will stream approximately 18 hours per month of youtube audio within the free tier of AWS.
-Each additonal 18 hours per month will cost approx $0.09
+This skill will stream approximately 15-18 hours per month of youtube audio within the free tier of AWS.
+Each additonal 15-18 hours per month will cost approx $0.09
 
 The skill will **try** and stop you from going beyond the free limits unless you instruct it to do otherwise - but it is your responsibility to keep a check on your usage and AWS costs. 
 See the AWS Charges section for more details.
