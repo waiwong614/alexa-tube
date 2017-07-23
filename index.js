@@ -19,6 +19,10 @@ const dropbox = dropboxV2Api.authenticate({
 const audioOutput = '/tmp/sound.m4a'
 const mainOutput = '/tmp/output.m4a'
 const dbfile = 'audio.mp4'
+var maxdata = 1048576000 // default max data limit - this is deliberately set to 1000MB rather than 1 Gig to allow headroom for settings.js transfers plus any other skills running
+var datachargerate = 0.090 // this is the AWS Data transfer charge per Gigabyte first 10 TB / month data transfer out beyond the global free tier
+
+var destructrequestactive = false
 
 
 process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'];
@@ -33,7 +37,15 @@ if (process.env['PART_SIZE_SECS']){
 
 if (process.env['MAX_RESULTS']){
     maxresults = process.env['MAX_RESULTS']
-    console.log('Max results over-ridden to ', partsize)
+    console.log('Max results over-ridden to ', maxresults)
+}
+if (process.env['MAX_DATA']){
+    maxdata = process.env['MAX_DATA']
+    console.log('Max data over-ridden to ', maxdata)
+}
+if (process.env['CHARGE_PER_GIG']){
+    datachargerate = process.env['CHARGE_PER_GIG']
+    console.log('Data charge rate over-ridden to ', datachargerate)
 }
 
 var opts = {
@@ -77,6 +89,28 @@ alextube.prototype.handle = function () {
         
         if (!process.env['DROPBOX_TOKEN']){
             this.speak('DROPBOX TOKEN Environment Variable not set!')
+        }
+        
+        if (destructrequestactive == true && intent.name === "DestructCode") {
+ 
+        console.log('Recieved Destuct')
+            destructrequestactive = false;
+            this.raisemax()
+        
+        } else if (destructrequestactive == false && intent.name === "DestructCode") {
+ 
+        console.log('Recieved Destuct')
+            this.speak('You must ask to raise the data limit before using this code')
+        
+        } else if (destructrequestactive == true && intent.name !== "DestructCode") {
+ 
+        console.log('Did not receive Destuct code')
+            destructrequestactive = false;
+            this.speak('You did not give a correct code')
+        
+        }
+        else {
+            destructrequestactive = false
         }
 
         if (intent.name === "SearchIntent") {
@@ -135,21 +169,52 @@ alextube.prototype.handle = function () {
                             if (err) {
                                 searchFunction.speak('There was an error loading settings from dropbox')
                             } else {
-                                if (!settings.autoplay){
+                                if (typeof settings.autoplay == 'undefined'){
+                                    console.log('No autoplay setting exists - creating')
                                     settings.autoplay ='on'
                                 } 
                                 
-                                if (!settings.shuffle){
+                                if (typeof settings.shuffle == 'undefined'){
+                                    console.log('No shuffle setting exists - creating')
                                     settings.shuffle = 'off'
                                 }
-                                if (!settings.loop){
+                                if (typeof settings.loop == 'undefined'){
+                                    console.log('No loop setting exists - creating')
                                     settings.loop = 'off'
                                 }
+                                if (typeof settings.dataused == 'undefined'){
+                                    console.log('No dataused setting exists - creating')
+                                    settings.dataused = 0
+                                }                                
+                                
+                                if (typeof settings.maxdata == 'undefined'){
+                                    console.log('No maxdata setting exists - creating')
+                                    settings.maxdata = maxdata
+                                }
+                                if (typeof settings.currentmonth == 'undefined'){
+                                    console.log('No month setting exists - creating')
+                                    var timedate = new Date();
+                                    settings.currentmonth = timedate.getMonth();
+                                }
+                                var timedatecheck = new Date();
+                                var currentmonth = timedatecheck.getMonth();
+                                
+                                if (settings.currentmonth !== currentmonth )
+                                    console.log('******New month detected - resetting stats*******')
+                                    settings.currentmonth = currentmonth
+                                    settings.dataused = 0
+                                    settings.maxdata = maxdata
                                 
                                 if (settings.shuffle == 'on'){
                                     settings.currentresult = Math.floor((Math.random() * (results.length-1) ));
                                 }
                                 
+                                if (settings.dataused >= settings.maxdata){
+                                    searchFunction.speakWithCard('Maximum monthly data usage exceeded', 'WARNING', 'Maximum monthly data usage exceeded')
+                                }
+                                
+                                console.log('Max data usage setting in GB ', settings.maxdata/1048576)
+                                console.log('Current data usage in GB ', settings.dataused/1048576)
                                 
                                 searchFunction.processResult(0, null, 0);
 
@@ -198,6 +263,17 @@ alextube.prototype.handle = function () {
  
         console.log('Starting Auto Off Intent')
             this.autoMode('off')
+        
+        }else if (intent.name === "ResetLimit") {
+ 
+        console.log('Received Reset limit')
+            this.resetmax()
+        
+        }else if (intent.name === "RaiseLimit") {
+ 
+        console.log('Received Raise limit')
+            destructrequestactive = true;
+            this.speak('Request to raise data limit received. Please give the authorisation code', true)
         
         } else if (intent.name === "NumberIntent") {
  
@@ -730,6 +806,7 @@ alextube.prototype.processResult = function (partnumber, enqueue, offset) {
               .pipe(fs.createWriteStream(audioOutput))
 
               .on('finish', () => {
+                
                 var test = ffmpeg()
               //  .input(ytdl(url, { filter: format => {
               //    return format.container === 'm4a';  } }))
@@ -745,8 +822,31 @@ alextube.prototype.processResult = function (partnumber, enqueue, offset) {
                     .on('end', () => {
                     fs.unlink(audioOutput, err => {
                       if(err) console.error(err);
+                        
+                        
+                        
+                        var stats = fs.statSync(mainOutput)
+                        var fileSizeInBytes = stats.size
+                        var overalldata = settings.dataused + fileSizeInBytes
+                        console.log('Max data usage setting in GB ', settings.maxdata/1000000.0)
+                        console.log('Current data usage in GB ', settings.dataused/1000000.0)
+                        console.log('Data usage following this song in GB ', overalldata/1000000.0)
+                        
+                        if (overalldata >= settings.maxdata){
+                            
+                            
+                            playFunction.speakWithCard('Maximum monthly data usage reached', 'WARNING', 'Maximum monthly data usage reached')
+                            
+                            
+                        } else {
+                            
+                            settings.dataused = overalldata;
 
                         playFunction.upload(enqueue, offset);
+                        
+                        }
+               
+                        
                     });
                   });
                //     test.pipe(dropboxUploadStream);
@@ -832,8 +932,7 @@ alextube.prototype.autoMode = function (mode) {
 alextube.prototype.shuffle = function (mode) {
     
     var shufflefunction = this;
-            
-        
+
         this.loadSettings(function(err, result)  {
             if (err) {
                 shufflefunction.speak('There was an error loading settings from dropbox')
@@ -880,6 +979,59 @@ alextube.prototype.loop = function (mode) {
 
 };
 
+alextube.prototype.resetmax = function () {
+    console.log('Resetting data limit')
+    
+    var resetfunction = this;
+    
+            
+        
+        this.loadSettings(function(err, result)  {
+            if (err) {
+                resetfunction.speak('There was an error loading settings from dropbox')
+            } else { 
+                settings.maxdata = maxdata
+                
+                resetfunction.saveSettings(function(err, result)  {
+                    if (err) {
+                        console.log('There was an error saving settings to dropbox', err)
+                    } else {
+                        
+                        resetfunction.speak('Monthly Data limit has been reset to default of ' + Math.ceil(settings.maxdata/1048576) + 'Megabytes. Current usage this month is ' + Math.ceil(settings.dataused/1048576) + 'Megabytes.')
+                    }
+                });
+            }
+
+        });
+
+};
+
+alextube.prototype.raisemax = function () {
+    console.log('Raising data limit')
+    
+    var raisefunction = this;
+    
+
+        this.loadSettings(function(err, result)  {
+            if (err) {
+                raisefunction.speak('There was an error loading settings from dropbox')
+            } else { 
+                settings.maxdata = settings.maxdata + maxdata
+                
+                raisefunction.saveSettings(function(err, result)  {
+                    if (err) {
+                        console.log('There was an error saving settings to dropbox', err)
+                    } else {
+                        
+                        raisefunction.speak('Monthly Data limit has been increased to ' + Math.ceil(settings.maxdata/1048576) + 'Megabytes. Current usage this month is ' + Math.ceil(settings.dataused/1048576) + 'Mega bytes. Warning. Additional use of this skill may be subject to amazon AWS Bandwidth charges, which are ' + datachargerate + ' per gigabyte. See the Now Playing card in the Alexa app for current estimated costs')
+                    }
+                });
+            }
+
+        });
+
+};
+
 alextube.prototype.numberedTrack = function (number) {
     console.log('Numbered track function')
     
@@ -912,8 +1064,8 @@ alextube.prototype.numberedTrack = function (number) {
 
  
 alextube.prototype.saveSettings = function (callback) {
-    
-   
+    // add the writing of this file to the data used (we have to estimate the filesize as being 24KB)
+    settings.dataused = settings.dataused + 24576
     var wstream = fs.createWriteStream('/tmp/settings.js');
     wstream.write(JSON.stringify(settings));
     wstream.end();
@@ -1027,9 +1179,24 @@ alextube.prototype.createPlaylist = function(currentresult) {
          }
          tracklist = tracklist + '\n'
         }
+    var costs = 0
+    var billabledata = settings.dataused - maxdata
+    if (billabledata > 0){
+        
+        costs = ((datachargerate/1073741824)*billabledata).toFixed(2);
+        
+    } 
     
-    var playlist = description + '\n' + 'From Channel: ' + channel + '\n' + '🔗 ' + link + '\n➖ AutoPlay is ' + settings.autoplay + ' ➖ Shuffle Mode is ' + settings.shuffle + ' ➖ Loop mode is ' + settings.loop + ' ➖\n' +
-                '➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n...........................TRACK LISTING...........................\n➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n' + tracklist
+    var playlist = description + '\n' + 'From Channel: ' + channel + '\n' + '🔗 ' + link + 
+        '\n➖➖ ESTIMATED COSTS TO DATE FOR THIS MONTH $' + costs + 
+        ' ➖➖➖  \n➖  DATA USAGE LIMIT: ' + Math.ceil(settings.maxdata/1048576) + 
+        'MB ➖ DATA USED: ' + Math.ceil(settings.dataused/1048576) + 
+        ' MB ➖ DATA REMAINING: ' + 
+        Math.ceil((settings.maxdata - settings.dataused)/1048576) + 
+        ' MB\n➖ AutoPlay is ' + settings.autoplay + 
+        ' ➖ Shuffle Mode is ' + settings.shuffle + 
+        ' ➖ Loop mode is ' + settings.loop + ' ➖\n' +
+        '➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n...........................TRACK LISTING...........................\n➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖➖\n' + tracklist
 
   return playlist;
 
@@ -1042,11 +1209,13 @@ alextube.prototype.help = function(currentresult) {
 '3. Request a particular track from the playlist: "Alexa, ask Youtube to play Track 10"\n' +
 '4. Skip to the next/previous track:- "Alexa, next/ previous track"\n' +
 '5. Pause:- "Alexa pause" or "Alexa stop"\n' +
-'6. Resume playback:- "Alexa resume" NOTE - this will restart the track from the beginning\n' +
-'7. Find out what is playing by asking "Alexa ask Youtube whats playing"\n' +
+'6. Resume playback:- "Alexa resume" ' +
+'7. Find out what is playing by asking "Alexa ask Youtube whats playing - this will also tell you your data usage"\n' +
 '8. Loop the current playlist:- "Alexa Loop On/Off"\n' +
 '9. Shuffle mode On/Off:- "Alexa shuffle On/Off"\n' +
-'10. Start the track currently playing fromt he beginning:- "Alexa Start Over"'
+'10. Start the track currently playing fromt he beginning:- "Alexa Start Over"\n'
+'11. Increae the data limit (this will allow the skill to incur data charges from AWS):- "Alexa, ask youtube to increase the data limit"\n' +
+'12. Reset the data limit to default of 1000MB:- "Alexa, ask youtube to reset the data limit"'
     
     var cardTitle = 'Youtube Skill Commands'
     

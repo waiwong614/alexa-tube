@@ -1,9 +1,14 @@
 # alexa-tube
 **Unofficial Youtube Skill for Alexa**
 
-## Release 1.1
+## Release 1.2
 
-This skill is a proof of concept that allows Alexa to search for youtube videos and play the audio element - NOTE doing so is against the youtube terms of service
+This skill is a proof of concept for personal use that allows Alexa to search for youtube videos and play the audio element - NOTE doing so is against the youtube terms of service
+
+This skill will stream approximately 15-18 hours per month of youtube audio within the free tier of AWS.
+
+The skill will *try* and stop you from going beyond these limits - but it is your responsibility to keep a check on your usage and AWS costs. See the AWS Charges section for more details.
+
 
 ## SKILL COMMANDS
 
@@ -13,11 +18,13 @@ This skill is a proof of concept that allows Alexa to search for youtube videos 
 4. Skip to the next/previous track:- "Alexa, next/ previous track"
 5. Pause:- "Alexa pause" or "Alexa stop"
 6. Resume playback:- "Alexa resume" 
-7. Find out what is playing by asking "Alexa ask Youtube what's playing"
+7. Find out what is playing by asking "Alexa ask Youtube what's playing" - this will also tell you your data usage
 8. Loop the current playlist:- "Alexa Loop On/Off"
 9. Shuffle mode On/Off:- "Alexa shuffle On/Off"
 10. Start the track currently playing fromt he beginning:- "Alexa Start Over"
 11. Get a list of these commands in the Alexa app: - "Alexa ask Youtube for help"
+12. Increae the data limit (this will allow the skill to incur data charges from AWS):- "Alexa, ask youtube to increase the data limit"
+13. Reset the data limit to default of 1000MB:- "Alexa, ask youtube to reset the data limit"
 
 Following a search request, the skill produces an Alexa App card which lists upto 25 results and shows the track that is currently playing. This card is not produced when the next track plays unless the "next" command is used or you ask what is playing
 
@@ -25,13 +32,50 @@ The skill will filter out any tracks longer than 7 hours as there isn't sufficie
 
 ![alt text](screenshots/skill_card.jpeg)
 
+## AWS CHARGES
+
+This skill has to transfer *a lot* of data around which Amazon charges for. The first 1 Gigabyte of data transfer per month is free after which Amazon will charge $0.09 per GB.
+The skill will  *try* to prevent you from going over 1000MB in a calender month (this is not a full 1GB but leaves some additonal headroom for for other skills) and will stop playing any further audio unless you specifcally ask the skill to increase the data limit by saying:-
+
+"Alexa, ask youtube to increase the data limit"
+
+You will then need to give the authorisation code which is:-
+
+    ```
+    ZERO ZERO ZERO DESTRUCT ZERO
+    ```
+
+This will then add an additonal 1000MB to the data limit. You can repeat this process to increase the data limit by 1000MB increments.
+
+The Now Playing Card in the Alexa app will tell you the data that you have used to date for the current month along with an estimated cost in US dollars if you have exceed the free usage.
+
+
+** NOTE - The app can only track it's own data usage. If you run other skills on AWS then these will also contribute towards usage limits. You can cheack your usage at any time by visiting:- **
+
+https://console.aws.amazon.com/billing/home?#/
+
+
+The data limit can be reset to it's default at any time with the command:-
+
+"Alexa, ask youtube to reset the data limit"
+
+This will prevent any further charges if you are already over the default limit
+
+
+You can increase the default data limit and AWS cost rates by setting the following environment variables:-
+
+|Key           |Description            |Possible Values| Default Value (if variable is not set)|
+|--------------| ----------------------|---------------|----------------------------|
+|CHARGE_PER_GIG|This is the AWS EC2 charge per GB for the first 10 TB / month data transfer out beyond the global free tier|Cost in dollars per GB|0.090| 
+|MAX_DATA|The size of the data limit in bytes|size in bytes|1048576000|
+
+
+**IF PAYING AWS CHARGES IS NOT ACCEPTABLE TO YOU THEN PLEASE DO NOT INSTALL THIS SKILL**
 
 
 ## TECHNICAL
 
 The mpeg4 aac DASH audio stream URL provided by the API is read using YTDL-core, rewrapped into a seekable MP4 file using FFMPEG and the resulting audio is temporarily cached into dropbox in order for Alexa to play the stream. 
-
-Dropbox is used rather than S3 as although it is significantly slower to transfer the data (by an order of magnitude) there are no download bandwidth charges for dropbox unlike S3. 
 
 The skill creates a folder in your dropbox called youtube-skill, into which it writes 2 files, audio.mp4 which contains the audio to be played by Alexa and settings.json which holds the skills settings between sessions. 
 
@@ -224,7 +268,6 @@ Again, save it to a notepad file and do not share this with anyone else!!!
         {
           "intent": "AMAZON.HelpIntent"
         },
-
         {
           "slots": [
             {
@@ -251,6 +294,15 @@ Again, save it to a notepad file and do not share this with anyone else!!!
         },
         {
           "intent": "AutoOff"
+        },
+        {
+          "intent": "DestructCode"
+        },
+        {
+          "intent": "RaiseLimit"
+        },
+        {
+          "intent": "ResetLimit"
         }
       ]
     }
@@ -316,6 +368,12 @@ Credit to https://github.com/rgraciano/echo-sonos/blob/master/echo/custom_slots/
     AutoOn autoplay on
     AutoOff turn autoplay off
     AutoOff autoplay off
+    DestructCode zero zero zero destruct zero
+    RaiseLimit increase the data limit
+    RaiseLimit raise the data limit
+    RaiseLimit raise the limit
+    ResetLimit reset the data limit
+    ResetLimit reset the limit
     ```
 ![alt text](screenshots/utterances.jpeg) 
 
