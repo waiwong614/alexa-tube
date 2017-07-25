@@ -356,9 +356,6 @@ Credit to https://github.com/rgraciano/echo-sonos/blob/master/echo/custom_slots/
     SearchIntent play some {search}
     SearchIntent play me some {search}
     SearchIntent videos by {search}
-    SearchIntent me videos by {search}
-    SearchIntent music by {search}
-    SearchIntent me music by {search}
     NumberIntent {number}
     NumberIntent play number {number}
     NumberIntent play track {number}
