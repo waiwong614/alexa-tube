@@ -355,8 +355,9 @@ Credit to https://github.com/rgraciano/echo-sonos/blob/master/echo/custom_slots/
     SearchIntent find {search}
     SearchIntent play some {search}
     SearchIntent play me some {search}
-    SearchIntent play videos by {search}
-    SearchIntent find videos by {search}
+    SearchIntent videos by {search}
+    SearchIntent for videos by {search}
+    SearchIntent for music by {search}
     NumberIntent {number}
     NumberIntent play number {number}
     NumberIntent play track {number}
@@ -387,7 +388,6 @@ Credit to https://github.com/rgraciano/echo-sonos/blob/master/echo/custom_slots/
 14. Click "Save" and then "Next".
 ![alt text](screenshots/endpoint.jpeg) 
 15. There is no need to go any further through the process i.e. submitting for certification. You can test the skill by typing a search into the Service Simulator filed e.g. "play some cat videos" NOTE- the actual audio from youtube won't play in the simulator
-
 
 
 
