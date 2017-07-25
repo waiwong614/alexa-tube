@@ -92,7 +92,8 @@ Each time a track plays, the skill overwrites audio.mp4 and creates a unique pub
 2. I keep getting an error when I go to create function in the Lambda page: Signature expired: 20170612T135832Z is now earlier than 20170612T142721Z (20170612T143221Z - 5 min.) - See the note on step 13 of the AWS Lambda Setup on how to fix this
 3. When I ask Alexa to open Youtube she says: "I got an error from the Dropbox API". You have probably copied over your Dropbox Token incorrectly - make sure you have no extra spaces
 4. When I ask Alexa to open Youtube she says: "I got an error from the Youtube API". You have probably copied over your Youtube API key incorrectly - make sure you have no extra spaces
-5. Sometimes I get no sound or some strange warbling sounds. The track is encoded in a way that isn't playable by Alexa - just skip this track.
+5. Sometimes I get no sound or some strange warbling sounds - The track is encoded in a way that isn't playable by Alexa - just skip this track.
+6. I keep get annoying popups from Dropbox on my desktop saying files have changes each time I use the skill - Exclude the "youtube-skill" folder from your Selective Sync settings in the dropbox app.
 
 
 
