@@ -282,6 +282,13 @@ alextube.prototype.handle = function () {
             this.numberedTrack(number)
 
         
+        }else if (intent.name === "AMAZON.StopIntent") {
+ 
+        console.log('Starting number Intent')
+            console.log('Running STOP intent')
+            this.stop();
+
+        
         } else if (intent.name === "AMAZON.PauseIntent") {
             console.log('Running pause intent')
             this.stop();

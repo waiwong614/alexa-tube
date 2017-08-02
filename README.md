@@ -15,6 +15,7 @@ Changes for this version:-
 
 1. Corrected minor bug in NowPlaying function
 2. Updated readme to add note about using service simulator
+3. Added handling of "Ask Youtube to STOP" rather than "Alexa Stop"
 
 
 ## SKILL COMMANDS
