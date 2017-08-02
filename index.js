@@ -234,7 +234,7 @@ alextube.prototype.handle = function () {
             var nowfunction = this;
             this.loadSettings(function(err, result)  {
                 if (err) {
-                    nofunction.speak('There was an error loading settings from dropbox')
+                    nowfunction.speak('There was an error loading settings from dropbox')
                 } else {
                     var currentresult = settings.currentresult
                     var enqueuestatus = settings.enqueue

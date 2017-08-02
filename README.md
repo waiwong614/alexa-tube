@@ -1,7 +1,7 @@
 # alexa-tube
 **Unofficial Youtube Skill for Alexa**
 
-## Release 1.2
+## Release 1.2.1
 
 This skill is a proof of concept for personal use that allows Alexa to search for youtube videos and play the audio element - NOTE doing so is against the youtube terms of service
 
@@ -10,6 +10,11 @@ Each additonal 15-18 hours per month will cost approx $0.09
 
 The skill will **try** and stop you from going beyond the free limits unless you instruct it to do otherwise - but it is your responsibility to keep a check on your usage and AWS costs. 
 See the AWS Charges section for more details.
+
+Changes for this version:-
+
+1. Corrected minor bug in NowPlaying function
+2. Updated readme to add note about using service simulator
 
 
 ## SKILL COMMANDS
@@ -387,7 +392,7 @@ Credit to https://github.com/rgraciano/echo-sonos/blob/master/echo/custom_slots/
 20. Select "No" for Account Linking and leave everything under permissions unchecked
 14. Click "Save" and then "Next".
 ![alt text](screenshots/endpoint.jpeg) 
-15. There is no need to go any further through the process i.e. submitting for certification. You can test the skill by typing a search into the Service Simulator filed e.g. "play some cat videos" NOTE- the actual audio from youtube won't play in the simulator
+15. There is no need to go any further through the process i.e. submitting for certification. Note - tsting the skill using the service simulator can produce unexpected results so is not recommended
 
 
 
